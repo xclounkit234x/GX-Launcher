@@ -770,4 +770,93 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.GXParticles) {
         try { GXParticles.start(); } catch (e) { console.warn('GXParticles', e); }
     }
+    gxApplyCloak();
+    gxWirePanic();
+    // restore cloak fields on settings page
+    try {
+        var raw = getCookie('gxCloak') || localStorage.getItem('gxCloak') || '';
+        if (raw) {
+            var parts = raw.split('|');
+            var ti = document.getElementById('gx-cloak-title');
+            var ic = document.getElementById('gx-cloak-icon');
+            if (ti) ti.value = parts[0] || '';
+            if (ic) ic.value = parts[1] || '';
+        }
+        var pk = document.getElementById('gx-panic-key');
+        var pu = document.getElementById('gx-panic-url');
+        if (pk) pk.value = getCookie('gxPanicKey') || localStorage.getItem('gxPanicKey') || '`';
+        if (pu) pu.value = getCookie('gxPanicUrl') || localStorage.getItem('gxPanicUrl') || 'https://www.google.com';
+    } catch (e) {}
 });
+
+// ===== TAB CLOAK + PANIC (GX) =====
+function gxApplyCloak() {
+    try {
+        var raw = getCookie('gxCloak') || '';
+        if (!raw) {
+            try { raw = localStorage.getItem('gxCloak') || ''; } catch(e) {}
+        }
+        if (!raw) return;
+        var parts = raw.split('|');
+        var title = parts[0], icon = parts[1];
+        if (title) {
+            document.title = title;
+            document.querySelectorAll('.cloak, title').forEach(function(el) {
+                if (el.tagName === 'TITLE') el.textContent = title;
+            });
+        }
+        if (icon) {
+            var link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+            link.rel = 'icon';
+            link.href = icon;
+            if (!link.parentNode) document.head.appendChild(link);
+        }
+    } catch (e) {}
+}
+function gxSaveCloak() {
+    var title = (document.getElementById('gx-cloak-title') || {}).value || '';
+    var icon = (document.getElementById('gx-cloak-icon') || {}).value || '';
+    var val = title + '|' + icon;
+    setCookie('gxCloak', val, 365);
+    try { localStorage.setItem('gxCloak', val); } catch(e) {}
+    gxApplyCloak();
+    if (typeof showToast === 'function') showToast('Tab cloak saved');
+}
+function gxPresetCloak(name) {
+    var map = {
+        Google: ['Google', 'https://www.google.com/favicon.ico'],
+        Canva: ['Home - Canva', 'https://www.canva.com/favicon.ico'],
+        Classroom: ['Home', 'https://ssl.gstatic.com/classroom/favicon.png']
+    };
+    var p = map[name];
+    if (!p) return;
+    var t = document.getElementById('gx-cloak-title');
+    var i = document.getElementById('gx-cloak-icon');
+    if (t) t.value = p[0];
+    if (i) i.value = p[1];
+    gxSaveCloak();
+}
+function gxClearCloak() {
+    setCookie('gxCloak', '', -1);
+    try { localStorage.removeItem('gxCloak'); } catch(e) {}
+    if (typeof showToast === 'function') showToast('Cloak cleared — reload to restore title');
+}
+function gxSavePanic() {
+    var k = (document.getElementById('gx-panic-key') || {}).value || '`';
+    var u = (document.getElementById('gx-panic-url') || {}).value || 'https://www.google.com';
+    if (!/^https?:/i.test(u)) u = 'https://' + u;
+    setCookie('gxPanicKey', k, 365);
+    setCookie('gxPanicUrl', u, 365);
+    try {
+        localStorage.setItem('gxPanicKey', k);
+        localStorage.setItem('gxPanicUrl', u);
+    } catch(e) {}
+    if (typeof showToast === 'function') showToast('Panic key saved');
+}
+function gxWirePanic() {
+    document.addEventListener('keydown', function (e) {
+        var key = getCookie('gxPanicKey') || (function(){ try { return localStorage.getItem('gxPanicKey'); } catch(e) { return null; } })() || '`';
+        var href = getCookie('gxPanicUrl') || (function(){ try { return localStorage.getItem('gxPanicUrl'); } catch(e) { return null; } })() || 'https://www.google.com';
+        if (e.key === key) window.location.href = href;
+    });
+}
