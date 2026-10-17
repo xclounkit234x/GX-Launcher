@@ -1,3 +1,4 @@
+
 /* ============================================================
    GX-LAUNCHER 2.2 SCRIPT
    ============================================================ */
@@ -76,6 +77,9 @@ function applyTheme(name) {
     document.querySelectorAll('.theme-swatch').forEach(s => {
         s.classList.toggle('selected', s.dataset.themeName === name);
     });
+    if (window.GXParticles) {
+        try { GXParticles.refresh(); } catch (e) {}
+    }
 }
 
 function updateNavVisibility() {}
@@ -606,6 +610,7 @@ function redirectToMain()         { window.location.href = 'index.html'; }
 function redirectToOtherClients() { window.location.href = 'otherclients.html'; }
 function redirectToDownloads()    { window.location.href = 'downloads.html'; }
 function redirectToSettings()     { window.location.href = 'settings.html'; }
+function redirectToGames()        { window.location.href = 'games.html'; }
 
 function openBlankPage(link) { window.open(link); }
 
@@ -761,4 +766,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Restore UI scale
     loadUiScale();
+
+    if (window.GXParticles) {
+        try { GXParticles.start(); } catch (e) { console.warn('GXParticles', e); }
+    }
 });
