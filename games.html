@@ -9,16 +9,24 @@
   <link rel="icon" type="image/png" href="resources/main.png">
   <link rel="stylesheet" href="styles.css">
   <style>
+    /* Games page: MacVG GX-like grid + scroll, particles show through */
+    .main-content.games-main {
+      overflow: hidden !important;
+      display: flex !important;
+      flex-direction: column !important;
+      min-height: 0 !important;
+      background: transparent !important;
+    }
     .gx-games-wrap {
       display: flex;
       flex-direction: column;
-      height: 100%;
+      flex: 1;
       min-height: 0;
-      padding: 12px 16px 20px;
+      padding: 12px 16px 16px;
       position: relative;
       z-index: 1;
     }
-    .gx-games-header { margin-bottom: 12px; }
+    .gx-games-header { flex-shrink: 0; margin-bottom: 10px; }
     .gx-games-header h2 {
       margin: 0 0 4px;
       font-size: 15px;
@@ -34,14 +42,16 @@
       font-family: 'Segoe UI', sans-serif;
     }
     .gx-games-toolbar {
+      flex-shrink: 0;
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       padding: 10px 12px;
-      background: var(--panel, #141414);
+      background: rgba(20, 20, 20, 0.75);
       border: 1px solid var(--border, #2a2a2a);
+      backdrop-filter: blur(6px);
     }
     .gx-games-toolbar input[type="search"] {
       flex: 1;
@@ -67,7 +77,6 @@
       padding: 6px 11px;
       cursor: pointer;
       font-family: 'Segoe UI', sans-serif;
-      transition: border-color 0.15s, color 0.15s, background 0.15s;
       white-space: nowrap;
     }
     .gx-chip:hover,
@@ -77,76 +86,87 @@
       background: var(--accent-glow, rgba(180,0,0,0.18));
     }
     .gx-games-status {
+      flex-shrink: 0;
       font-size: 12px;
       color: var(--text-dim, #666);
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       font-family: 'Segoe UI', sans-serif;
       min-height: 1.2em;
     }
     .gx-games-status.err { color: #ff6666; }
     .gx-games-status.ok { color: var(--accent-hi, #ff4444); }
+
+    /* Scrollable grid — same idea as MacVG GX */
     .gx-games-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
-      gap: 10px;
+      flex: 1 1 auto;
+      min-height: 0;
       overflow-y: auto;
-      flex: 1;
-      min-height: 200px;
-      padding-bottom: 12px;
+      overflow-x: hidden;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px;
       align-content: start;
+      padding: 2px 6px 16px 0;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border2, #404040) transparent;
     }
+    .gx-games-grid::-webkit-scrollbar { width: 8px; }
+    .gx-games-grid::-webkit-scrollbar-thumb {
+      background: var(--border2, #404040);
+      border-radius: 4px;
+    }
+
     .gx-game-tile {
       position: relative;
+      width: 100%;
       aspect-ratio: 1 / 1;
+      height: auto;
       border: 1px solid var(--border, #2a2a2a);
-      background-color: var(--bg3, #181818);
-      background-position: center;
+      background-color: rgba(24, 24, 24, 0.9);
+      background-position: center center;
       background-size: cover;
       background-repeat: no-repeat;
       cursor: pointer;
       overflow: hidden;
-      transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
-      display: flex;
-      align-items: flex-end;
+      display: block;
       text-decoration: none;
       color: var(--text-bright, #eee);
+      transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
     }
-    .gx-game-tile::before {
+    .gx-game-tile::after {
       content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(
-        rgba(40, 40, 40, 0.15) 0%,
-        rgba(10, 10, 10, 0.25) 40%,
-        rgba(0, 0, 0, 0.92) 100%
-      );
+      background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.15) 45%, transparent 70%);
       pointer-events: none;
     }
     .gx-game-tile:hover {
       border-color: var(--accent, #cc0000);
-      box-shadow: 0 0 20px var(--accent-glow, rgba(180,0,0,0.3));
-      transform: translateY(-3px);
+      box-shadow: 0 0 16px var(--accent-glow, rgba(180,0,0,0.35));
+      transform: translateY(-2px);
+      z-index: 2;
     }
     .gx-game-tile .name {
-      position: relative;
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
       z-index: 1;
-      padding: 8px 9px;
-      font-size: 12px;
+      padding: 8px 7px;
+      font-size: 11px;
       font-weight: 650;
       line-height: 1.25;
-      width: 100%;
       font-family: 'Segoe UI', sans-serif;
       text-shadow: 0 1px 3px #000;
+      max-height: 45%;
+      overflow: hidden;
     }
     .gx-game-tile .badge {
       position: absolute;
-      top: 6px;
-      left: 6px;
+      top: 5px; left: 5px;
       z-index: 2;
       font-size: 9px;
       font-weight: 700;
       letter-spacing: 0.08em;
-      padding: 2px 6px;
+      padding: 2px 5px;
       background: var(--accent-dim, #7a0000);
       color: var(--accent-hi, #ff2222);
       border: 1px solid var(--accent, #cc0000);
@@ -157,14 +177,7 @@
       text-align: center;
       padding: 40px 16px;
       color: var(--text-dim, #666);
-      font-family: 'Segoe UI', sans-serif;
       font-size: 13px;
-    }
-    .main-panel .main-content.games-main {
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      padding: 0;
     }
   </style>
   <script src="script.js" defer></script>
