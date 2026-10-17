@@ -10,14 +10,14 @@
   "use strict";
 
   var CFG = {
-    count: 90,
+    count: 110,
     maxSize: 2.8,
     minSize: 0.7,
     speed: 0.4,
     linkDist: 130,
-    linkOpacity: 0.28,
+    linkOpacity: 0.35,
     glowMul: 8,
-    glowAlpha: 0.55,
+    glowAlpha: 0.7,
     twinkle: true
   };
 
