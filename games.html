@@ -9,18 +9,41 @@
   <link rel="icon" type="image/png" href="resources/main.png">
   <link rel="stylesheet" href="styles.css">
   <style>
-    /* Games panel (MacVG library inside GX chrome) */
-    .games-toolbar {
+    .gx-games-wrap {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+      padding: 12px 16px 20px;
+      position: relative;
+      z-index: 1;
+    }
+    .gx-games-header { margin-bottom: 12px; }
+    .gx-games-header h2 {
+      margin: 0 0 4px;
+      font-size: 15px;
+      letter-spacing: 0.14em;
+      color: var(--accent-hi, #ff2222);
+      font-weight: 700;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .gx-games-header p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--text-dim, #555);
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .gx-games-toolbar {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
       align-items: center;
-      margin-bottom: 14px;
-      padding: 12px 14px;
+      margin-bottom: 12px;
+      padding: 10px 12px;
       background: var(--panel, #141414);
       border: 1px solid var(--border, #2a2a2a);
     }
-    .games-toolbar input[type="search"] {
+    .gx-games-toolbar input[type="search"] {
       flex: 1;
       min-width: 160px;
       background: var(--bg3, #181818);
@@ -31,86 +54,118 @@
       font-size: 13px;
       outline: none;
     }
-    .games-toolbar input[type="search"]:focus {
+    .gx-games-toolbar input[type="search"]:focus {
       border-color: var(--accent, #cc0000);
       box-shadow: 0 0 0 2px var(--accent-glow, rgba(180,0,0,0.18));
     }
-    .games-chip {
+    .gx-chip {
       background: transparent;
       border: 1px solid var(--border2, #404040);
-      color: var(--text-dim, #555);
+      color: var(--text-dim, #888);
       font-size: 11px;
-      letter-spacing: 0.08em;
-      padding: 6px 12px;
+      letter-spacing: 0.06em;
+      padding: 6px 11px;
       cursor: pointer;
       font-family: 'Segoe UI', sans-serif;
       transition: border-color 0.15s, color 0.15s, background 0.15s;
+      white-space: nowrap;
     }
-    .games-chip:hover,
-    .games-chip.active {
+    .gx-chip:hover,
+    .gx-chip.active {
       border-color: var(--accent, #cc0000);
       color: var(--accent-hi, #ff2222);
       background: var(--accent-glow, rgba(180,0,0,0.18));
     }
-    .games-status {
+    .gx-games-status {
       font-size: 12px;
-      color: var(--text-dim, #555);
+      color: var(--text-dim, #666);
       margin-bottom: 10px;
       font-family: 'Segoe UI', sans-serif;
+      min-height: 1.2em;
     }
-    .games-status.err { color: #ff6666; }
-    .games-grid {
+    .gx-games-status.err { color: #ff6666; }
+    .gx-games-status.ok { color: var(--accent-hi, #ff4444); }
+    .gx-games-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
       gap: 10px;
-      max-height: calc(100vh - 220px);
       overflow-y: auto;
-      padding-right: 4px;
+      flex: 1;
+      min-height: 200px;
+      padding-bottom: 12px;
+      align-content: start;
     }
-    .game-tile {
+    .gx-game-tile {
       position: relative;
-      aspect-ratio: 1;
+      aspect-ratio: 1 / 1;
       border: 1px solid var(--border, #2a2a2a);
-      background: var(--bg3, #181818) center / cover no-repeat;
+      background-color: var(--bg3, #181818);
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
       cursor: pointer;
       overflow: hidden;
       transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+      display: flex;
+      align-items: flex-end;
+      text-decoration: none;
+      color: var(--text-bright, #eee);
     }
-    .game-tile::after {
+    .gx-game-tile::before {
       content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(transparent 40%, rgba(0,0,0,0.88));
+      background: linear-gradient(
+        rgba(40, 40, 40, 0.15) 0%,
+        rgba(10, 10, 10, 0.25) 40%,
+        rgba(0, 0, 0, 0.92) 100%
+      );
+      pointer-events: none;
     }
-    .game-tile:hover {
+    .gx-game-tile:hover {
       border-color: var(--accent, #cc0000);
-      box-shadow: 0 0 18px var(--accent-glow, rgba(180,0,0,0.25));
-      transform: translateY(-2px);
+      box-shadow: 0 0 20px var(--accent-glow, rgba(180,0,0,0.3));
+      transform: translateY(-3px);
     }
-    .game-tile .gt-name {
-      position: absolute;
-      left: 0; right: 0; bottom: 0;
+    .gx-game-tile .name {
+      position: relative;
       z-index: 1;
-      padding: 8px;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-bright, #eee);
-      font-family: 'Segoe UI', sans-serif;
+      padding: 8px 9px;
+      font-size: 12px;
+      font-weight: 650;
       line-height: 1.25;
+      width: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      text-shadow: 0 1px 3px #000;
     }
-    .game-tile .gt-badge {
+    .gx-game-tile .badge {
       position: absolute;
-      top: 6px; left: 6px;
-      z-index: 1;
+      top: 6px;
+      left: 6px;
+      z-index: 2;
       font-size: 9px;
-      letter-spacing: 0.1em;
+      font-weight: 700;
+      letter-spacing: 0.08em;
       padding: 2px 6px;
       background: var(--accent-dim, #7a0000);
       color: var(--accent-hi, #ff2222);
       border: 1px solid var(--accent, #cc0000);
+      font-family: 'Segoe UI', sans-serif;
     }
-    /* Hide any clients chrome if someone iframes old MacVG */
-    #macvg-frame { display: none; }
+    .gx-games-empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 40px 16px;
+      color: var(--text-dim, #666);
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 13px;
+    }
+    .main-panel .main-content.games-main {
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+    }
   </style>
   <script src="script.js" defer></script>
   <script src="gx-particles.js" defer></script>
@@ -138,16 +193,40 @@
       </div>
       <nav>
         <div class="nav-section-label">Navigation</div>
-        <div class="nav-item" onclick="redirectToNews()">Update Log</div>
-        <div class="nav-item" onclick="redirectToMain()">Game</div>
-        <div class="nav-item selected" onclick="location.href='games.html'">Games</div>
-        <div class="nav-item" onclick="redirectToClients()">Clients</div>
-        <div class="nav-item" onclick="redirectToOtherClients()">Other Clients</div>
-        <div class="nav-item" onclick="redirectToServers()">Servers</div>
-        <div class="nav-item" onclick="redirectToDownloads()">Downloads</div>
+        <div class="nav-item" onclick="redirectToNews()">
+          <svg class="nav-svg" viewBox="0 0 24 24"><path d="M4 4h16v14a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/><line x1="4" y1="9" x2="20" y2="9"/><line x1="9" y1="4" x2="9" y2="9"/></svg>
+          Update Log
+        </div>
+        <div class="nav-item" onclick="redirectToMain()">
+          <svg class="nav-svg" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="13" rx="1"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+          Game
+        </div>
+        <div class="nav-item selected" onclick="redirectToGames()">
+          <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+          Games
+        </div>
+        <div class="nav-item" onclick="redirectToClients()">
+          <svg class="nav-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+          Clients
+        </div>
+        <div class="nav-item" onclick="redirectToOtherClients()">
+          <svg class="nav-svg" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Beta Clients
+        </div>
+        <div class="nav-item" onclick="redirectToServers()">
+          <svg class="nav-svg" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="5" rx="1"/><rect x="2" y="10" width="20" height="5" rx="1"/><rect x="2" y="17" width="20" height="5" rx="1"/></svg>
+          Servers
+        </div>
+        <div class="nav-item" onclick="redirectToDownloads()">
+          <svg class="nav-svg" viewBox="0 0 24 24"><line x1="12" y1="3" x2="12" y2="15"/><polyline points="7 10 12 15 17 10"/><line x1="4" y1="19" x2="20" y2="19"/></svg>
+          Downloads
+        </div>
       </nav>
       <div class="sidebar-bottom">
-        <div class="nav-item" onclick="redirectToSettings()">Launcher Settings</div>
+        <div class="nav-item" onclick="redirectToSettings()">
+          <svg class="nav-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          Launcher Settings
+        </div>
       </div>
     </div>
 
@@ -157,18 +236,28 @@
         <div class="breadcrumb">HOME / GAMES</div>
       </div>
 
-      <div class="main-content" style="padding:16px; overflow:auto;">
-        <div class="games-toolbar">
-          <input type="search" id="gamesSearch" placeholder="Search library…" autocomplete="off">
-          <button type="button" class="games-chip active" data-filter="all">All</button>
-          <button type="button" class="games-chip" data-filter="featured">Featured</button>
-          <button type="button" class="games-chip" data-filter="action">Action</button>
-          <button type="button" class="games-chip" data-filter="strategy">Strategy</button>
-          <button type="button" class="games-chip" data-filter="casual">Casual</button>
-          <button type="button" class="games-chip" data-filter="driving">Driving</button>
+      <div class="main-content games-main">
+        <div class="gx-games-wrap">
+          <div class="gx-games-header">
+            <h2>GAME LIBRARY</h2>
+            <p>MacVG-style browser games — not Eagler clients (use Clients for those).</p>
+          </div>
+
+          <div class="gx-games-toolbar">
+            <input type="search" id="gamesSearch" placeholder="Search all games…" autocomplete="off">
+            <button type="button" class="gx-chip" id="btnRandom" title="Random">Random</button>
+            <button type="button" class="gx-chip active" data-filter="all">All</button>
+            <button type="button" class="gx-chip" data-filter="featured">Featured</button>
+            <button type="button" class="gx-chip" data-filter="action">Action</button>
+            <button type="button" class="gx-chip" data-filter="strategy">Strategy</button>
+            <button type="button" class="gx-chip" data-filter="casual">Casual</button>
+            <button type="button" class="gx-chip" data-filter="driving">Driving</button>
+            <button type="button" class="gx-chip" data-filter="download">Downloadable</button>
+          </div>
+
+          <div class="gx-games-status" id="gamesStatus">Loading games…</div>
+          <div class="gx-games-grid" id="gamesGrid"></div>
         </div>
-        <div class="games-status" id="gamesStatus">Loading library…</div>
-        <div class="games-grid" id="gamesGrid"></div>
       </div>
     </div>
   </div>
@@ -178,121 +267,184 @@
 (function () {
   "use strict";
 
-  // Prefer same-origin games.json; fallback to your MacVG Pages host
-  const SOURCES = [
+  var SOURCES = [
     "games.json",
+    "https://cdn.jsdelivr.net/gh/xclounkit234x/macvg@main/games.json",
+    "https://raw.githubusercontent.com/xclounkit234x/macvg/main/games.json",
     "https://xclounkit234x.github.io/macvg/games.json"
   ];
 
-  // Where clicking a game should go (MacVG game player on your host)
-  const PLAY_BASE = "https://xclounkit234x.github.io/macvg/game.html";
+  var ASSET_BASE = "https://xclounkit234x.github.io/macvg";
+  var PLAY = "https://xclounkit234x.github.io/macvg/game.html";
 
-  let all = [];
-  let view = [];
+  var everything = [];
+  var filtered = [];
 
-  function cat(g) {
+  function catOf(g) {
     return String(g.category || g.catagory || "").toLowerCase();
   }
 
-  function tile(g) {
-    const el = document.createElement("div");
-    el.className = "game-tile";
-    const thumb = (g.link || "") + (g.thumb || "");
-    // thumbs on MacVG are often relative; prefix host if needed
-    let bg = thumb;
-    if (thumb && thumb.startsWith("/")) {
-      bg = "https://xclounkit234x.github.io/macvg" + thumb;
-    } else if (thumb && !/^https?:/i.test(thumb) && g.link && g.link.startsWith("/")) {
-      bg = "https://xclounkit234x.github.io/macvg" + g.link + (g.thumb || "");
+  function thumbUrl(g) {
+    var link = g.link || "";
+    var thumb = g.thumb || "";
+    if (!thumb && !link) return "";
+    if (/^https?:\/\//i.test(thumb)) return thumb;
+    if (/^https?:\/\//i.test(link)) return link.replace(/\/?$/, "/") + thumb;
+    var path = (link.replace(/\/?$/, "/") + thumb).replace(/^\//, "");
+    return ASSET_BASE + "/" + path;
+  }
+
+  function makeTile(g) {
+    var a = document.createElement("a");
+    a.className = "gx-game-tile";
+    a.href = "#";
+    a.title = g.name || "Game";
+    var url = thumbUrl(g);
+    if (url) {
+      a.style.backgroundImage =
+        'linear-gradient(rgba(40,40,40,0.15), rgba(0,0,0,0.9)), url("' +
+        url.replace(/\\/g, "\\\\").replace(/"/g, '\\"') +
+        '")';
     }
-    if (bg) el.style.backgroundImage = 'linear-gradient(transparent 35%,#000),url("' + bg.replace(/"/g, "") + '")';
     if (g.featured) {
-      const b = document.createElement("span");
-      b.className = "gt-badge";
+      var b = document.createElement("span");
+      b.className = "badge";
       b.textContent = "FEAT";
-      el.appendChild(b);
+      a.appendChild(b);
     }
-    const n = document.createElement("span");
-    n.className = "gt-name";
+    var n = document.createElement("span");
+    n.className = "name";
     n.textContent = g.name || "Game";
-    el.appendChild(n);
-    el.addEventListener("click", () => {
-      const url = PLAY_BASE + "?target=" + encodeURIComponent(String(g.id));
-      // respect GX launch modes if helpers exist
-      if (typeof launchGameUrl === "function") {
-        launchGameUrl(url);
-      } else {
-        window.open(url, "_blank");
-      }
+    a.appendChild(n);
+    a.addEventListener("click", function (e) {
+      e.preventDefault();
+      window.open(PLAY + "?target=" + encodeURIComponent(String(g.id)), "_blank");
     });
-    return el;
+    return a;
   }
 
   function render(list) {
-    const grid = document.getElementById("gamesGrid");
+    var grid = document.getElementById("gamesGrid");
+    if (!grid) return;
     grid.innerHTML = "";
     if (!list.length) {
-      grid.innerHTML = '<div class="games-status">No games match.</div>';
+      grid.innerHTML = '<div class="gx-games-empty">No games match your search / filter.</div>';
       return;
     }
-    const frag = document.createDocumentFragment();
-    list.forEach((g) => frag.appendChild(tile(g)));
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < list.length; i++) frag.appendChild(makeTile(list[i]));
     grid.appendChild(frag);
   }
 
+  function updateChipCounts() {
+    var counts = { all: everything.length, featured: 0, action: 0, strategy: 0, casual: 0, driving: 0, download: 0 };
+    everything.forEach(function (g) {
+      if (g.featured) counts.featured++;
+      if (g.download) counts.download++;
+      var c = catOf(g);
+      if (counts[c] !== undefined) counts[c]++;
+    });
+    var labels = {
+      all: "All", featured: "Featured", action: "Action",
+      strategy: "Strategy", casual: "Casual", driving: "Driving", download: "Downloadable"
+    };
+    document.querySelectorAll(".gx-chip[data-filter]").forEach(function (btn) {
+      var f = btn.getAttribute("data-filter");
+      if (counts[f] !== undefined) btn.textContent = labels[f] + " (" + counts[f] + ")";
+    });
+  }
+
   function applyFilter(name) {
-    let list = all.slice();
-    if (name === "featured") list = list.filter((g) => g.featured);
-    else if (["action", "strategy", "casual", "driving"].includes(name)) {
-      list = list.filter((g) => cat(g) === name);
+    var list = everything.slice();
+    if (name === "featured") list = list.filter(function (g) { return !!g.featured; });
+    else if (name === "download") list = list.filter(function (g) { return !!g.download; });
+    else if (name === "action" || name === "strategy" || name === "casual" || name === "driving") {
+      list = list.filter(function (g) { return catOf(g) === name; });
     }
-    list.sort((a, b) => String(a.name).localeCompare(String(b.name)));
-    view = list;
-    const q = (document.getElementById("gamesSearch").value || "").trim().toLowerCase();
-    render(q ? view.filter((g) => String(g.name).toLowerCase().includes(q)) : view);
-    document.querySelectorAll(".games-chip").forEach((c) => {
-      c.classList.toggle("active", c.getAttribute("data-filter") === name);
+    list.sort(function (a, b) {
+      return String(a.name || "").localeCompare(String(b.name || ""));
+    });
+    filtered = list;
+    var q = (document.getElementById("gamesSearch").value || "").trim().toLowerCase();
+    render(q ? filtered.filter(function (g) {
+      return String(g.name || "").toLowerCase().indexOf(q) !== -1;
+    }) : filtered);
+    document.querySelectorAll(".gx-chip[data-filter]").forEach(function (b) {
+      b.classList.toggle("active", b.getAttribute("data-filter") === name);
     });
   }
 
-  async function load() {
-    const st = document.getElementById("gamesStatus");
-    let data = null;
-    let lastErr = null;
-    for (const src of SOURCES) {
-      try {
-        const r = await fetch(src, { cache: "no-store" });
-        if (!r.ok) throw new Error(src + " HTTP " + r.status);
-        data = await r.json();
-        break;
-      } catch (e) {
-        lastErr = e;
+  function searchNow() {
+    var q = (document.getElementById("gamesSearch").value || "").trim().toLowerCase();
+    var base = filtered.length ? filtered : everything;
+    render(q ? base.filter(function (g) {
+      return String(g.name || "").toLowerCase().indexOf(q) !== -1;
+    }) : base);
+  }
+
+  function randomGame() {
+    var pool = filtered.length ? filtered : everything;
+    if (!pool.length) return;
+    var g = pool[Math.floor(Math.random() * pool.length)];
+    window.open(PLAY + "?target=" + encodeURIComponent(String(g.id)), "_blank");
+  }
+
+  function loadGames() {
+    var st = document.getElementById("gamesStatus");
+    var data = null;
+    var used = "";
+    var lastErr = null;
+    var i = 0;
+
+    function tryNext() {
+      if (i >= SOURCES.length) {
+        st.className = "gx-games-status err";
+        st.textContent = "Could not load games library. " +
+          (lastErr && lastErr.message ? lastErr.message : "Unknown error") +
+          " — commit games.json next to games.html and redeploy.";
+        document.getElementById("gamesGrid").innerHTML =
+          '<div class="gx-games-empty">Failed to fetch games.json. Copy games.json from artifacts into the repo root.</div>';
+        return;
       }
+      var src = SOURCES[i++];
+      fetch(src, { cache: "no-store", mode: "cors" })
+        .then(function (r) {
+          if (!r.ok) throw new Error("HTTP " + r.status + " @ " + src);
+          return r.json();
+        })
+        .then(function (json) {
+          if (!json || !Array.isArray(json.games)) throw new Error("Invalid JSON");
+          data = json;
+          used = src;
+          everything = data.games;
+          everything.forEach(function (g) {
+            if (g.category == null && g.catagory != null) g.category = g.catagory;
+          });
+          filtered = everything.slice();
+          updateChipCounts();
+          applyFilter("all");
+          st.className = "gx-games-status ok";
+          st.textContent = "Loaded " + everything.length + " games";
+        })
+        .catch(function (e) {
+          lastErr = e;
+          tryNext();
+        });
     }
-    if (!data) {
-      st.className = "games-status err";
-      st.textContent = "Could not load games library. " + (lastErr && lastErr.message ? lastErr.message : "");
-      return;
-    }
-    all = Array.isArray(data.games) ? data.games : [];
-    st.textContent = all.length + " games loaded (clients section not included).";
-    applyFilter("all");
+    tryNext();
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".games-chip").forEach((btn) => {
-      btn.addEventListener("click", () => applyFilter(btn.getAttribute("data-filter")));
-    });
-    const search = document.getElementById("gamesSearch");
-    if (search) {
-      search.addEventListener("input", () => {
-        const q = search.value.trim().toLowerCase();
-        const base = view.length ? view : all;
-        render(q ? base.filter((g) => String(g.name).toLowerCase().includes(q)) : base);
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".gx-chip[data-filter]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        applyFilter(btn.getAttribute("data-filter"));
       });
-    }
-    load();
-    if (window.GXParticles) GXParticles.start();
+    });
+    var search = document.getElementById("gamesSearch");
+    if (search) search.addEventListener("input", searchNow);
+    var rnd = document.getElementById("btnRandom");
+    if (rnd) rnd.addEventListener("click", randomGame);
+    loadGames();
   });
 })();
 </script>
