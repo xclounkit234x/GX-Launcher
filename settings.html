@@ -352,5 +352,32 @@
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
+
+        <!-- TAB CLOAK / PANIC -->
+        <div class="settings-section" id="gx-cloak-section" style="margin-top:28px;padding:16px;border:1px solid var(--border,#2a2a2a);background:var(--panel,#141414);">
+          <div style="font-size:12px;letter-spacing:0.14em;color:var(--accent,#cc0000);font-weight:700;margin-bottom:10px;">TAB CLOAK</div>
+          <p style="font-size:11px;color:var(--text-dim,#666);margin-bottom:12px;line-height:1.5;">Change the browser tab title and favicon so the page looks like something else.</p>
+          <label style="display:block;font-size:10px;color:#666;letter-spacing:0.08em;margin-bottom:4px;">TITLE</label>
+          <input id="gx-cloak-title" type="text" placeholder="Google" style="width:100%;max-width:360px;padding:8px 10px;background:var(--bg3,#181818);border:1px solid var(--border2,#404040);color:var(--text,#ccc);margin-bottom:10px;">
+          <label style="display:block;font-size:10px;color:#666;letter-spacing:0.08em;margin-bottom:4px;">FAVICON URL</label>
+          <input id="gx-cloak-icon" type="text" placeholder="https://www.google.com/favicon.ico" style="width:100%;max-width:360px;padding:8px 10px;background:var(--bg3,#181818);border:1px solid var(--border2,#404040);color:var(--text,#ccc);margin-bottom:10px;">
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
+            <button type="button" class="settings-btn-ghost" onclick="gxSaveCloak()">Save Cloak</button>
+            <button type="button" class="settings-btn-ghost" onclick="gxPresetCloak('Google')">Google</button>
+            <button type="button" class="settings-btn-ghost" onclick="gxPresetCloak('Canva')">Canva</button>
+            <button type="button" class="settings-btn-ghost" onclick="gxPresetCloak('Classroom')">Classroom</button>
+            <button type="button" class="settings-btn-ghost" onclick="gxClearCloak()">Clear</button>
+          </div>
+          <div style="font-size:12px;letter-spacing:0.14em;color:var(--accent,#cc0000);font-weight:700;margin-bottom:10px;">PANIC KEY</div>
+          <label style="display:block;font-size:10px;color:#666;letter-spacing:0.08em;margin-bottom:4px;">KEY</label>
+          <input id="gx-panic-key" type="text" maxlength="2" value="`" style="width:80px;padding:8px 10px;background:var(--bg3,#181818);border:1px solid var(--border2,#404040);color:var(--text,#ccc);margin-bottom:10px;">
+          <label style="display:block;font-size:10px;color:#666;letter-spacing:0.08em;margin-bottom:4px;">REDIRECT URL</label>
+          <input id="gx-panic-url" type="text" value="https://www.google.com" style="width:100%;max-width:360px;padding:8px 10px;background:var(--bg3,#181818);border:1px solid var(--border2,#404040);color:var(--text,#ccc);margin-bottom:10px;">
+          <button type="button" class="settings-btn-ghost" onclick="gxSavePanic()">Save Panic</button>
+        </div>
+
+<script>
+/* cloak helpers use functions from script.js if present */
+</script>
 </body>
 </html>
