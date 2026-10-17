@@ -1,0 +1,300 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GX-Launcher // Games</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/png" href="resources/main.png">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Games panel (MacVG library inside GX chrome) */
+    .games-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 14px;
+      padding: 12px 14px;
+      background: var(--panel, #141414);
+      border: 1px solid var(--border, #2a2a2a);
+    }
+    .games-toolbar input[type="search"] {
+      flex: 1;
+      min-width: 160px;
+      background: var(--bg3, #181818);
+      border: 1px solid var(--border2, #404040);
+      color: var(--text, #ccc);
+      padding: 8px 12px;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 13px;
+      outline: none;
+    }
+    .games-toolbar input[type="search"]:focus {
+      border-color: var(--accent, #cc0000);
+      box-shadow: 0 0 0 2px var(--accent-glow, rgba(180,0,0,0.18));
+    }
+    .games-chip {
+      background: transparent;
+      border: 1px solid var(--border2, #404040);
+      color: var(--text-dim, #555);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-family: 'Segoe UI', sans-serif;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+    .games-chip:hover,
+    .games-chip.active {
+      border-color: var(--accent, #cc0000);
+      color: var(--accent-hi, #ff2222);
+      background: var(--accent-glow, rgba(180,0,0,0.18));
+    }
+    .games-status {
+      font-size: 12px;
+      color: var(--text-dim, #555);
+      margin-bottom: 10px;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .games-status.err { color: #ff6666; }
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px;
+      max-height: calc(100vh - 220px);
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .game-tile {
+      position: relative;
+      aspect-ratio: 1;
+      border: 1px solid var(--border, #2a2a2a);
+      background: var(--bg3, #181818) center / cover no-repeat;
+      cursor: pointer;
+      overflow: hidden;
+      transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+    }
+    .game-tile::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(transparent 40%, rgba(0,0,0,0.88));
+    }
+    .game-tile:hover {
+      border-color: var(--accent, #cc0000);
+      box-shadow: 0 0 18px var(--accent-glow, rgba(180,0,0,0.25));
+      transform: translateY(-2px);
+    }
+    .game-tile .gt-name {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      z-index: 1;
+      padding: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-bright, #eee);
+      font-family: 'Segoe UI', sans-serif;
+      line-height: 1.25;
+    }
+    .game-tile .gt-badge {
+      position: absolute;
+      top: 6px; left: 6px;
+      z-index: 1;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      padding: 2px 6px;
+      background: var(--accent-dim, #7a0000);
+      color: var(--accent-hi, #ff2222);
+      border: 1px solid var(--accent, #cc0000);
+    }
+    /* Hide any clients chrome if someone iframes old MacVG */
+    #macvg-frame { display: none; }
+  </style>
+  <script src="script.js" defer></script>
+  <script src="gx-particles.js" defer></script>
+</head>
+<body>
+<div class="launcher">
+  <div class="title-bar">
+    <div class="title-logo">
+      <div class="title-dot"></div>
+      GX-LAUNCHER <span class="ver">GAMES</span>
+    </div>
+    <div class="title-controls">
+      <div class="wdot min"></div>
+      <div class="wdot max"></div>
+      <div class="wdot close"></div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="sidebar">
+      <div class="profile">
+        <div class="profile-label">Player</div>
+        <span class="profile-name" id="profile-name">Player</span>
+        <div class="profile-status"><div class="status-dot"></div>ONLINE</div>
+      </div>
+      <nav>
+        <div class="nav-section-label">Navigation</div>
+        <div class="nav-item" onclick="redirectToNews()">Update Log</div>
+        <div class="nav-item" onclick="redirectToMain()">Game</div>
+        <div class="nav-item selected" onclick="location.href='games.html'">Games</div>
+        <div class="nav-item" onclick="redirectToClients()">Clients</div>
+        <div class="nav-item" onclick="redirectToOtherClients()">Other Clients</div>
+        <div class="nav-item" onclick="redirectToServers()">Servers</div>
+        <div class="nav-item" onclick="redirectToDownloads()">Downloads</div>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="nav-item" onclick="redirectToSettings()">Launcher Settings</div>
+      </div>
+    </div>
+
+    <div class="main-panel">
+      <div class="top-bar">
+        <div class="game-title">GX-LAUNCHER <span>// GAMES</span></div>
+        <div class="breadcrumb">HOME / GAMES</div>
+      </div>
+
+      <div class="main-content" style="padding:16px; overflow:auto;">
+        <div class="games-toolbar">
+          <input type="search" id="gamesSearch" placeholder="Search library…" autocomplete="off">
+          <button type="button" class="games-chip active" data-filter="all">All</button>
+          <button type="button" class="games-chip" data-filter="featured">Featured</button>
+          <button type="button" class="games-chip" data-filter="action">Action</button>
+          <button type="button" class="games-chip" data-filter="strategy">Strategy</button>
+          <button type="button" class="games-chip" data-filter="casual">Casual</button>
+          <button type="button" class="games-chip" data-filter="driving">Driving</button>
+        </div>
+        <div class="games-status" id="gamesStatus">Loading library…</div>
+        <div class="games-grid" id="gamesGrid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // Prefer same-origin games.json; fallback to your MacVG Pages host
+  const SOURCES = [
+    "games.json",
+    "https://xclounkit234x.github.io/macvg/games.json"
+  ];
+
+  // Where clicking a game should go (MacVG game player on your host)
+  const PLAY_BASE = "https://xclounkit234x.github.io/macvg/game.html";
+
+  let all = [];
+  let view = [];
+
+  function cat(g) {
+    return String(g.category || g.catagory || "").toLowerCase();
+  }
+
+  function tile(g) {
+    const el = document.createElement("div");
+    el.className = "game-tile";
+    const thumb = (g.link || "") + (g.thumb || "");
+    // thumbs on MacVG are often relative; prefix host if needed
+    let bg = thumb;
+    if (thumb && thumb.startsWith("/")) {
+      bg = "https://xclounkit234x.github.io/macvg" + thumb;
+    } else if (thumb && !/^https?:/i.test(thumb) && g.link && g.link.startsWith("/")) {
+      bg = "https://xclounkit234x.github.io/macvg" + g.link + (g.thumb || "");
+    }
+    if (bg) el.style.backgroundImage = 'linear-gradient(transparent 35%,#000),url("' + bg.replace(/"/g, "") + '")';
+    if (g.featured) {
+      const b = document.createElement("span");
+      b.className = "gt-badge";
+      b.textContent = "FEAT";
+      el.appendChild(b);
+    }
+    const n = document.createElement("span");
+    n.className = "gt-name";
+    n.textContent = g.name || "Game";
+    el.appendChild(n);
+    el.addEventListener("click", () => {
+      const url = PLAY_BASE + "?target=" + encodeURIComponent(String(g.id));
+      // respect GX launch modes if helpers exist
+      if (typeof launchGameUrl === "function") {
+        launchGameUrl(url);
+      } else {
+        window.open(url, "_blank");
+      }
+    });
+    return el;
+  }
+
+  function render(list) {
+    const grid = document.getElementById("gamesGrid");
+    grid.innerHTML = "";
+    if (!list.length) {
+      grid.innerHTML = '<div class="games-status">No games match.</div>';
+      return;
+    }
+    const frag = document.createDocumentFragment();
+    list.forEach((g) => frag.appendChild(tile(g)));
+    grid.appendChild(frag);
+  }
+
+  function applyFilter(name) {
+    let list = all.slice();
+    if (name === "featured") list = list.filter((g) => g.featured);
+    else if (["action", "strategy", "casual", "driving"].includes(name)) {
+      list = list.filter((g) => cat(g) === name);
+    }
+    list.sort((a, b) => String(a.name).localeCompare(String(b.name)));
+    view = list;
+    const q = (document.getElementById("gamesSearch").value || "").trim().toLowerCase();
+    render(q ? view.filter((g) => String(g.name).toLowerCase().includes(q)) : view);
+    document.querySelectorAll(".games-chip").forEach((c) => {
+      c.classList.toggle("active", c.getAttribute("data-filter") === name);
+    });
+  }
+
+  async function load() {
+    const st = document.getElementById("gamesStatus");
+    let data = null;
+    let lastErr = null;
+    for (const src of SOURCES) {
+      try {
+        const r = await fetch(src, { cache: "no-store" });
+        if (!r.ok) throw new Error(src + " HTTP " + r.status);
+        data = await r.json();
+        break;
+      } catch (e) {
+        lastErr = e;
+      }
+    }
+    if (!data) {
+      st.className = "games-status err";
+      st.textContent = "Could not load games library. " + (lastErr && lastErr.message ? lastErr.message : "");
+      return;
+    }
+    all = Array.isArray(data.games) ? data.games : [];
+    st.textContent = all.length + " games loaded (clients section not included).";
+    applyFilter("all");
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".games-chip").forEach((btn) => {
+      btn.addEventListener("click", () => applyFilter(btn.getAttribute("data-filter")));
+    });
+    const search = document.getElementById("gamesSearch");
+    if (search) {
+      search.addEventListener("input", () => {
+        const q = search.value.trim().toLowerCase();
+        const base = view.length ? view : all;
+        render(q ? base.filter((g) => String(g.name).toLowerCase().includes(q)) : base);
+      });
+    }
+    load();
+    if (window.GXParticles) GXParticles.start();
+  });
+})();
+</script>
+</body>
+</html>
